@@ -2,19 +2,32 @@ Sub DeleteFromStartRow_PlanChecker()
     Dim ws As Worksheet
     Dim lastRow As Long
     Dim startRow As Long
-
-    '=== Reference the sheet ===
+    Dim rngToClear As Range
+    
+    '=== Get the sheet ===
+    On Error Resume Next
     Set ws = ThisWorkbook.Sheets("Plan Checker")
-
-    '=== Get start row from cell K15 ===
-    startRow = ws.Range("K15").Value
-
-    If startRow <= 1 Then
-        MsgBox "⚠️ Invalid Start Row in K15.", vbExclamation
+    On Error GoTo 0
+    
+    If ws Is Nothing Then
+        MsgBox "❌ Sheet 'Plan Checker' not found.", vbCritical
         Exit Sub
     End If
-
-    '=== Find the last row with data in columns A:F ===
+    
+    '=== Get start row from K15 ===
+    If IsNumeric(ws.Range("K15").Value) Then
+        startRow = CLng(ws.Range("K15").Value)
+    Else
+        MsgBox "⚠️ K15 doesn't contain a valid row number.", vbExclamation
+        Exit Sub
+    End If
+    
+    If startRow < 2 Then
+        MsgBox "⚠️ Start row (" & startRow & ") is not allowed. Change K15.", vbExclamation
+        Exit Sub
+    End If
+    
+    '=== Find last used row in A:F ===
     On Error Resume Next
     lastRow = ws.Range("A:F").Find(What:="*", _
                                    After:=ws.Range("A1"), _
@@ -24,14 +37,22 @@ Sub DeleteFromStartRow_PlanChecker()
                                    SearchDirection:=xlPrevious, _
                                    MatchCase:=False).Row
     On Error GoTo 0
-
-    If lastRow < startRow Then
-        MsgBox "✅ Nothing to delete. Start Row (" & startRow & ") is beyond the last data row (" & lastRow & ").", vbInformation
+    
+    If lastRow = 0 Then
+        MsgBox "⚠️ No data found in columns A:F.", vbExclamation
         Exit Sub
     End If
-
-    '=== Delete data from start row downwards, columns A:F ===
-    ws.Range("A" & startRow & ":F" & lastRow).ClearContents
-
-    MsgBox "✅ Cleared columns A:F from row " & startRow & " to " & lastRow & ".", vbInformation, "Plan Checker Cleanup"
+    
+    If startRow > lastRow Then
+        MsgBox "✅ Nothing to clear. Start Row (" & startRow & _
+               ") is below last data row (" & lastRow & ").", vbInformation
+        Exit Sub
+    End If
+    
+    '=== Safe range build, then clear ===
+    Set rngToClear = ws.Range("A" & startRow & ":F" & lastRow)
+    rngToClear.ClearContents
+    
+    MsgBox "✅ Cleared columns A:F from row " & startRow & _
+           " to row " & lastRow & ".", vbInformation, "Plan Checker Cleanup"
 End Sub
