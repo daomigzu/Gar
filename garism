@@ -1,58 +1,24 @@
-Sub DeleteFromStartRow_PlanChecker()
+Sub clearData(SheetName As String, colX As Long, colY As Long)
     Dim ws As Worksheet
     Dim lastRow As Long
-    Dim startRow As Long
-    Dim rngToClear As Range
     
-    '=== Get the sheet ===
+    '=== Safety check if sheet exists ===
     On Error Resume Next
-    Set ws = ThisWorkbook.Sheets("Plan Checker")
+    Set ws = ThisWorkbook.Sheets(SheetName)
     On Error GoTo 0
-    
     If ws Is Nothing Then
-        MsgBox "❌ Sheet 'Plan Checker' not found.", vbCritical
+        MsgBox "Sheet '" & SheetName & "' not found.", vbExclamation
         Exit Sub
     End If
     
-    '=== Get start row from K15 ===
-    If IsNumeric(ws.Range("K15").Value) Then
-        startRow = CLng(ws.Range("K15").Value)
-    Else
-        MsgBox "⚠️ K15 doesn't contain a valid row number.", vbExclamation
+    '=== Validate range ===
+    If colX < 1 Or colY < colX Then
+        MsgBox "Invalid range. Please check your input rows.", vbExclamation
         Exit Sub
     End If
     
-    If startRow < 2 Then
-        MsgBox "⚠️ Start row (" & startRow & ") is not allowed. Change K15.", vbExclamation
-        Exit Sub
-    End If
+    '=== Clear Columns A:F from row colX to colY ===
+    ws.Range("A" & colX & ":F" & colY).ClearContents
     
-    '=== Find last used row in A:F ===
-    On Error Resume Next
-    lastRow = ws.Range("A:F").Find(What:="*", _
-                                   After:=ws.Range("A1"), _
-                                   LookIn:=xlValues, _
-                                   LookAt:=xlPart, _
-                                   SearchOrder:=xlByRows, _
-                                   SearchDirection:=xlPrevious, _
-                                   MatchCase:=False).Row
-    On Error GoTo 0
-    
-    If lastRow = 0 Then
-        MsgBox "⚠️ No data found in columns A:F.", vbExclamation
-        Exit Sub
-    End If
-    
-    If startRow > lastRow Then
-        MsgBox "✅ Nothing to clear. Start Row (" & startRow & _
-               ") is below last data row (" & lastRow & ").", vbInformation
-        Exit Sub
-    End If
-    
-    '=== Safe range build, then clear ===
-    Set rngToClear = ws.Range("A" & startRow & ":F" & lastRow)
-    rngToClear.ClearContents
-    
-    MsgBox "✅ Cleared columns A:F from row " & startRow & _
-           " to row " & lastRow & ".", vbInformation, "Plan Checker Cleanup"
+    MsgBox "Data cleared successfully from A" & colX & " to F" & colY & " in sheet '" & SheetName & "'.", vbInformation
 End Sub
