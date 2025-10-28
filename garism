@@ -1,19 +1,36 @@
-Sub btnPlanCheck()
-    Dim wsSource As Worksheet
-    Dim wsTarget As Worksheet
-    Dim valueToCopy As Variant
+Sub checkForBH()
+    Dim ws As Worksheet
+    Dim lastRow As Long
+    Dim i As Long
+    Dim foundBH As Boolean
+    Dim cellValue As String
 
-    '=== Set sheet references ===
-    Set wsSource = ThisWorkbook.Sheets("Claim Line Item")
-    Set wsTarget = ThisWorkbook.Sheets("Plan Checker")
+    '=== Set target sheet ===
+    Set ws = ThisWorkbook.Sheets("Plan Checker")
 
-    '=== Get the value from A2 in Claim Line Item ===
-    valueToCopy = wsSource.Range("A2").Value
+    '=== Find the last used row in column A ===
+    On Error Resume Next
+    lastRow = ws.Cells(ws.Rows.Count, "A").End(xlUp).Row
+    On Error GoTo 0
 
-    '=== Paste it into J2 in Plan Checker ===
-    wsTarget.Range("J2").Value = valueToCopy
+    '=== Default: no BH claim ===
+    foundBH = False
 
-    '=== Optional confirmation ===
-    MsgBox "✅ Copied value from 'Claim Line Item'!A2 to 'Plan Checker'!J2" & vbCrLf & _
-           "Value: " & valueToCopy, vbInformation, "btnPlanCheck"
+    '=== Loop through rows starting at 2 ===
+    For i = 2 To lastRow
+        cellValue = Trim(ws.Cells(i, "A").Value)
+        If Len(cellValue) >= 3 Then
+            If UCase(Left(cellValue, 3)) = "CBH" Then
+                foundBH = True
+                Exit For
+            End If
+        End If
+    Next i
+
+    '=== Output result ===
+    If foundBH Then
+        ws.Range("K14").Value = "BH CLAIM"
+    Else
+        ws.Range("K14").ClearContents
+    End If
 End Sub
