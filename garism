@@ -1,13 +1,5 @@
-RefreshMacro() {
-    if ControlGetVisible(keybindsGui)
-        return
-
-    AddToLog("Restarting macro with new source...")
-    Sleep(500)
-
-    ; Run a new instance of the same script file
-    Run('"' A_ScriptFullPath '"')
-
-    ; Then fully close the current one
-    ExitApp()
+ClearClipboard() {
+    A_Clipboard := ""
+    ClipWait(0)
+    AddToLog("Clipboard cleared.")
 }
