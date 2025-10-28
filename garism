@@ -1,25 +1,11 @@
-Sub DOSChecker()
-    Dim ws As Worksheet
-    Dim effDate As Variant
-    Dim dosDate As Variant
+Sleep(2000)
 
-    '=== Reference the sheet ===
-    Set ws = ThisWorkbook.Sheets("Plan Checker")
+; === Get value from Plan Checker sheet (cell K15) ===
+cellValue := pl.Sheets("Plan Checker").Range("K15").Value
 
-    '=== Get dates ===
-    effDate = ws.Range("A2").Value   ' Effective Date
-    dosDate = ws.Range("K2").Value   ' Date of Service
+AddToLog("Plan Checker K15 = " cellValue)
 
-    '=== Validate both cells contain valid dates ===
-    If Not IsDate(effDate) Or Not IsDate(dosDate) Then
-        ws.Range("L2").Value = "Invalid date(s)"
-        Exit Sub
-    End If
-
-    '=== Compare Effective vs DOS ===
-    If effDate <= dosDate Then
-        ws.Range("L2").Value = "Active"
-    Else
-        ws.Range("L2").Value = "Inactive"
-    End If
-End Sub
+Sleep(1000)
+closeWindow()
+Sleep(2000)
+msgboxChecker()
