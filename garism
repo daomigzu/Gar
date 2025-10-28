@@ -1,25 +1,41 @@
-Sub CleanExtraRows()
+Sub ClearExtraData_PlanChecker()
     Dim ws As Worksheet
     Dim lastRow As Long
-    Dim lastCol As Long
     Dim deleteFrom As Long
 
-    '=== Target active sheet (or specify name like "Sheet1") ===
-    Set ws = ActiveSheet
-    
-    '=== Find last used row and column ===
-    lastRow = ws.Cells.Find("*", , xlValues, , xlByRows, xlPrevious).Row
-    lastCol = ws.Cells.Find("*", , xlValues, , xlByColumns, xlPrevious).Column
+    '=== Reference the target sheet ===
+    On Error Resume Next
+    Set ws = ThisWorkbook.Sheets("Plan Checker")
+    On Error GoTo 0
 
-    '=== Optional: show what it found ===
-    Debug.Print "Last used row: " & lastRow
-    Debug.Print "Last used column: " & lastCol
-
-    '=== Delete all rows AFTER last used row ===
-    deleteFrom = lastRow + 1
-    If deleteFrom <= ws.Rows.Count Then
-        ws.Rows(deleteFrom & ":" & ws.Rows.Count).Delete
+    If ws Is Nothing Then
+        MsgBox "❌ Sheet 'Plan Checker' not found!", vbCritical
+        Exit Sub
     End If
 
-    MsgBox "🧹 Clean-up complete! Last used row: " & lastRow, vbInformation
+    '=== Find the last used row in columns A:F ===
+    On Error Resume Next
+    lastRow = ws.Range("A:F").Find(What:="*", _
+                                   After:=ws.Range("A1"), _
+                                   LookIn:=xlValues, _
+                                   LookAt:=xlPart, _
+                                   SearchOrder:=xlByRows, _
+                                   SearchDirection:=xlPrevious, _
+                                   MatchCase:=False).Row
+    On Error GoTo 0
+
+    If lastRow = 0 Then
+        MsgBox "⚠️ No data found in columns A:F.", vbExclamation
+        Exit Sub
+    End If
+
+    '=== Determine where to start clearing ===
+    deleteFrom = lastRow + 1
+
+    '=== Clear only columns A:F below last row ===
+    With ws
+        .Range("A" & deleteFrom & ":F" & .Rows.Count).ClearContents
+    End With
+
+    MsgBox "✅ Cleared all data in columns A:F below row " & lastRow & ".", vbInformation, "Plan Checker Cleanup"
 End Sub
