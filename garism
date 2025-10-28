@@ -1,11 +1,13 @@
-Sleep(2000)
+RefreshMacro() {
+    if ControlGetVisible(keybindsGui)
+        return
 
-; === Get value from Plan Checker sheet (cell K15) ===
-cellValue := pl.Sheets("Plan Checker").Range("K15").Value
+    AddToLog("Restarting macro with new source...")
+    Sleep(500)
 
-AddToLog("Plan Checker K15 = " cellValue)
+    ; Run a new instance of the same script file
+    Run('"' A_ScriptFullPath '"')
 
-Sleep(1000)
-closeWindow()
-Sleep(2000)
-msgboxChecker()
+    ; Then fully close the current one
+    ExitApp()
+}
