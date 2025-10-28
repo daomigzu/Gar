@@ -1,36 +1,25 @@
-Sub checkForBH()
+Sub DOSChecker()
     Dim ws As Worksheet
-    Dim lastRow As Long
-    Dim i As Long
-    Dim foundBH As Boolean
-    Dim cellValue As String
+    Dim effDate As Variant
+    Dim dosDate As Variant
 
-    '=== Set target sheet ===
+    '=== Reference the sheet ===
     Set ws = ThisWorkbook.Sheets("Plan Checker")
 
-    '=== Find the last used row in column A ===
-    On Error Resume Next
-    lastRow = ws.Cells(ws.Rows.Count, "A").End(xlUp).Row
-    On Error GoTo 0
+    '=== Get dates ===
+    effDate = ws.Range("A2").Value   ' Effective Date
+    dosDate = ws.Range("K2").Value   ' Date of Service
 
-    '=== Default: no BH claim ===
-    foundBH = False
+    '=== Validate both cells contain valid dates ===
+    If Not IsDate(effDate) Or Not IsDate(dosDate) Then
+        ws.Range("L2").Value = "Invalid date(s)"
+        Exit Sub
+    End If
 
-    '=== Loop through rows starting at 2 ===
-    For i = 2 To lastRow
-        cellValue = Trim(ws.Cells(i, "A").Value)
-        If Len(cellValue) >= 3 Then
-            If UCase(Left(cellValue, 3)) = "CBH" Then
-                foundBH = True
-                Exit For
-            End If
-        End If
-    Next i
-
-    '=== Output result ===
-    If foundBH Then
-        ws.Range("K14").Value = "BH CLAIM"
+    '=== Compare Effective vs DOS ===
+    If effDate <= dosDate Then
+        ws.Range("L2").Value = "Active"
     Else
-        ws.Range("K14").ClearContents
+        ws.Range("L2").Value = "Inactive"
     End If
 End Sub
