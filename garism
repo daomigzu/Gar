@@ -1,18 +1,20 @@
-Sub DeleteExtraRows_PlanChecker()
+Sub DeleteFromStartRow_PlanChecker()
     Dim ws As Worksheet
     Dim lastRow As Long
-    Dim deleteFrom As Long
+    Dim startRow As Long
 
-    On Error Resume Next
+    '=== Reference the sheet ===
     Set ws = ThisWorkbook.Sheets("Plan Checker")
-    On Error GoTo 0
 
-    If ws Is Nothing Then
-        MsgBox "❌ Sheet 'Plan Checker' not found!", vbCritical
+    '=== Get start row from cell K15 ===
+    startRow = ws.Range("K15").Value
+
+    If startRow <= 1 Then
+        MsgBox "⚠️ Invalid Start Row in K15.", vbExclamation
         Exit Sub
     End If
 
-    '=== Find last used row in columns A:F ===
+    '=== Find the last row with data in columns A:F ===
     On Error Resume Next
     lastRow = ws.Range("A:F").Find(What:="*", _
                                    After:=ws.Range("A1"), _
@@ -23,20 +25,13 @@ Sub DeleteExtraRows_PlanChecker()
                                    MatchCase:=False).Row
     On Error GoTo 0
 
-    If lastRow = 0 Then
-        MsgBox "⚠️ No data found in columns A:F.", vbExclamation
+    If lastRow < startRow Then
+        MsgBox "✅ Nothing to delete. Start Row (" & startRow & ") is beyond the last data row (" & lastRow & ").", vbInformation
         Exit Sub
     End If
 
-    '=== Calculate start row for deletion ===
-    deleteFrom = lastRow + 1
+    '=== Delete data from start row downwards, columns A:F ===
+    ws.Range("A" & startRow & ":F" & lastRow).ClearContents
 
-    '=== Delete actual rows (not just clear) ===
-    With ws
-        If deleteFrom <= .Rows.Count Then
-            .Range("A" & deleteFrom & ":F" & .Rows.Count).EntireRow.Delete
-        End If
-    End With
-
-    MsgBox "✅ Deleted all rows with data in columns A:F after row " & lastRow & ".", vbInformation, "Plan Checker Cleanup"
+    MsgBox "✅ Cleared columns A:F from row " & startRow & " to " & lastRow & ".", vbInformation, "Plan Checker Cleanup"
 End Sub
