@@ -1,1 +1,25 @@
-test
+Sub CleanExtraRows()
+    Dim ws As Worksheet
+    Dim lastRow As Long
+    Dim lastCol As Long
+    Dim deleteFrom As Long
+
+    '=== Target active sheet (or specify name like "Sheet1") ===
+    Set ws = ActiveSheet
+    
+    '=== Find last used row and column ===
+    lastRow = ws.Cells.Find("*", , xlValues, , xlByRows, xlPrevious).Row
+    lastCol = ws.Cells.Find("*", , xlValues, , xlByColumns, xlPrevious).Column
+
+    '=== Optional: show what it found ===
+    Debug.Print "Last used row: " & lastRow
+    Debug.Print "Last used column: " & lastCol
+
+    '=== Delete all rows AFTER last used row ===
+    deleteFrom = lastRow + 1
+    If deleteFrom <= ws.Rows.Count Then
+        ws.Rows(deleteFrom & ":" & ws.Rows.Count).Delete
+    End If
+
+    MsgBox "🧹 Clean-up complete! Last used row: " & lastRow, vbInformation
+End Sub
