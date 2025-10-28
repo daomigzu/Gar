@@ -1,34 +1,19 @@
-Sub clearData(SheetName As String, colX As String, colY As String)
-    Dim ws As Worksheet
-    Dim lastRow As Long
-    Dim startRow As Long
-    
-    '=== Get the sheet safely ===
-    On Error Resume Next
-    Set ws = ThisWorkbook.Sheets(SheetName)
-    On Error GoTo 0
-    
-    If ws Is Nothing Then
-        MsgBox "Sheet '" & SheetName & "' not found.", vbExclamation
-        Exit Sub
-    End If
-    
-    '=== Find the first data row in colX (usually 1, but let's be safe) ===
-    'We'll assume row 1 is header and we start clearing from row 2.
-    'If you want to also clear row1, set startRow = 1.
-    startRow = 2
-    
-    '=== Find the last row WITH DATA in the starting column (colX) ===
-    'If column is completely empty, lastRow becomes 0
-    lastRow = ws.Cells(ws.Rows.Count, colX).End(xlUp).Row
-    
-    'If column is empty below header (only header exists),
-    'there's nothing to clear
-    If lastRow < startRow Then
-        'nothing to clear
-        Exit Sub
-    End If
-    
-    '=== Clear the block from colX to colY, startRow to lastRow ===
-    ws.Range(colX & startRow & ":" & colY & lastRow).ClearContents
+Sub btnPlanCheck()
+    Dim wsSource As Worksheet
+    Dim wsTarget As Worksheet
+    Dim valueToCopy As Variant
+
+    '=== Set sheet references ===
+    Set wsSource = ThisWorkbook.Sheets("Claim Line Item")
+    Set wsTarget = ThisWorkbook.Sheets("Plan Checker")
+
+    '=== Get the value from A2 in Claim Line Item ===
+    valueToCopy = wsSource.Range("A2").Value
+
+    '=== Paste it into J2 in Plan Checker ===
+    wsTarget.Range("J2").Value = valueToCopy
+
+    '=== Optional confirmation ===
+    MsgBox "✅ Copied value from 'Claim Line Item'!A2 to 'Plan Checker'!J2" & vbCrLf & _
+           "Value: " & valueToCopy, vbInformation, "btnPlanCheck"
 End Sub
