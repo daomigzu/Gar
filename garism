@@ -1,9 +1,8 @@
-Sub ClearExtraData_PlanChecker()
+Sub DeleteExtraRows_PlanChecker()
     Dim ws As Worksheet
     Dim lastRow As Long
     Dim deleteFrom As Long
 
-    '=== Reference the target sheet ===
     On Error Resume Next
     Set ws = ThisWorkbook.Sheets("Plan Checker")
     On Error GoTo 0
@@ -13,7 +12,7 @@ Sub ClearExtraData_PlanChecker()
         Exit Sub
     End If
 
-    '=== Find the last used row in columns A:F ===
+    '=== Find last used row in columns A:F ===
     On Error Resume Next
     lastRow = ws.Range("A:F").Find(What:="*", _
                                    After:=ws.Range("A1"), _
@@ -29,13 +28,15 @@ Sub ClearExtraData_PlanChecker()
         Exit Sub
     End If
 
-    '=== Determine where to start clearing ===
+    '=== Calculate start row for deletion ===
     deleteFrom = lastRow + 1
 
-    '=== Clear only columns A:F below last row ===
+    '=== Delete actual rows (not just clear) ===
     With ws
-        .Range("A" & deleteFrom & ":F" & .Rows.Count).ClearContents
+        If deleteFrom <= .Rows.Count Then
+            .Range("A" & deleteFrom & ":F" & .Rows.Count).EntireRow.Delete
+        End If
     End With
 
-    MsgBox "✅ Cleared all data in columns A:F below row " & lastRow & ".", vbInformation, "Plan Checker Cleanup"
+    MsgBox "✅ Deleted all rows with data in columns A:F after row " & lastRow & ".", vbInformation, "Plan Checker Cleanup"
 End Sub
