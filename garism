@@ -2,15 +2,11 @@ CheckEmptyBoxes() {
     CoordMode("Pixel", "Screen")
     CoordMode("Mouse", "Screen")
 
-    startX := 600
-    startY := 280
-    hGap   := 100      ; Box4.x - Box1.x
-    vGap   := 20       ; Box2.y - Box1.y
-    rows   := 3
-    cols   := 4
-
+    startX := 600, startY := 280
+    hGap := 100, vGap := 20
+    rows := 3, cols := 4
     blankColor := 0xFFFFFF
-    tol := 0x080808     ; tolerance for Citrix shading
+    tol := 0x080808
 
     emptyCount := 0
     blankBoxes := []
@@ -36,7 +32,14 @@ CheckEmptyBoxes() {
 
     msg := "Blank boxes detected: " emptyCount
     if (blankBoxes.Length)
-        msg .= "`nBlank box numbers: " blankBoxes.Join(", ")  ; <-- fix
-
+        msg .= "`nBlank box numbers: " JoinArr(blankBoxes, ", ")
     MsgBox(msg)
+}
+
+; ========= helpers (place once, outside any function) =========
+JoinArr(arr, delim := ", ") {
+    out := ""
+    for i, v in arr
+        out .= (i > 1 ? delim : "") v
+    return out
 }
