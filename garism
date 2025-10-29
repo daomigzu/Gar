@@ -1,24 +1,25 @@
 tester() {
-    ; === Define your text patterns ===
+    ; === Define your text patterns and Y coordinates ===
     patterns := [
         {text: "|<>*181$34.01zzzw07zzzzkM00001U0006000000M00061U00e56000UM00021U00...", y1: 282, y2: 282},
         {text: "|<>*183$34.01zzzw07zzzzkM00001U0006000000M000D1U00a60000MM00011U00...", y1: 305, y2: 305},
         {text: "|<>*184$34.01zzzw07zzzzkM00001U0006000000M000E1U00a60030MM00031U00...", y1: 328, y2: 328}
     ]
 
-    ; === Define X boundaries (shared among all) ===
+    ; === Define shared X range ===
     x1 := 581 - 150000
     x2 := 581 + 150000
 
     found := false
+    result := ""
 
     for i, p in patterns {
-        ; Build dynamic region using each pattern's Y coordinates
         yTop := p.y1 - 150000
         yBot := p.y2 + 150000
 
         if (ok := FindText(&x, &y, x1, yTop, x2, yBot, 0, 0, p.text)) {
-            MsgBox "Found pattern #" i " at X:" x " Y:" y
+            result := 12 - i
+            MsgBox "Found pattern #" i "`nX:" x " Y:" y "`nResult: " result
             found := true
             break
         }
