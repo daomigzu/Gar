@@ -4,13 +4,13 @@ CheckEmptyBoxes() {
 
     startX := 600
     startY := 280
-    hGap   := 100     ; Box4.x - Box1.x
-    vGap   := 20      ; Box2.y - Box1.y
+    hGap   := 100      ; Box4.x - Box1.x
+    vGap   := 20       ; Box2.y - Box1.y
     rows   := 3
     cols   := 4
 
     blankColor := 0xFFFFFF
-    tol := 0x080808   ; tolerance for slight shading
+    tol := 0x080808     ; tolerance for Citrix shading
 
     emptyCount := 0
     blankBoxes := []
@@ -26,8 +26,8 @@ CheckEmptyBoxes() {
             MouseMove(x, y, 5)
             Sleep(120)
 
-            color := PixelGetColor(x, y, "RGB")   ; ✅ assign the return value
-            if (Abs(color - blankColor) <= tol) { ; tolerant compare
+            color := PixelGetColor(x, y, "RGB")
+            if (Abs(color - blankColor) <= tol) {
                 emptyCount++
                 blankBoxes.Push(boxNum)
             }
@@ -36,6 +36,7 @@ CheckEmptyBoxes() {
 
     msg := "Blank boxes detected: " emptyCount
     if (blankBoxes.Length)
-        msg .= "`nBlank box numbers: " Join(",", blankBoxes*)
+        msg .= "`nBlank box numbers: " blankBoxes.Join(", ")  ; <-- fix
+
     MsgBox(msg)
 }
