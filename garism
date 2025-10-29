@@ -1,11 +1,16 @@
 CheckEmptyBoxes() {
+    CoordMode("Pixel", "Screen")
+    CoordMode("Mouse", "Screen")
+
     startX := 600
     startY := 280
-    hGap   := 100   ; horizontal spacing (box4.x - box1.x)
-    vGap   := 20    ; vertical spacing (box2.y - box1.y)
+    hGap   := 100     ; Box4.x - Box1.x
+    vGap   := 20      ; Box2.y - Box1.y
     rows   := 3
     cols   := 4
-    blankColor := 0xFFFFFF  ; adjust if needed (white = empty)
+
+    blankColor := 0xFFFFFF
+    tol := 0x080808   ; tolerance for slight shading
 
     emptyCount := 0
     blankBoxes := []
@@ -18,21 +23,19 @@ CheckEmptyBoxes() {
             x := startX + (c - 1) * hGap
             y := startY + (r - 1) * vGap
 
-            ; Move mouse to visually indicate which box is checked
             MouseMove(x, y, 5)
-            Sleep(150)
+            Sleep(120)
 
-            PixelGetColor(color, x, y, "RGB")
-            if (color = blankColor) {
+            color := PixelGetColor(x, y, "RGB")   ; ✅ assign the return value
+            if (Abs(color - blankColor) <= tol) { ; tolerant compare
                 emptyCount++
                 blankBoxes.Push(boxNum)
             }
         }
     }
 
-    Msg := "Blank boxes detected: " emptyCount
+    msg := "Blank boxes detected: " emptyCount
     if (blankBoxes.Length)
-        Msg .= "`nBlank box numbers: " Join(",", blankBoxes*)
-
-    MsgBox(Msg)
+        msg .= "`nBlank box numbers: " Join(",", blankBoxes*)
+    MsgBox(msg)
 }
