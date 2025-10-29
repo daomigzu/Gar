@@ -1,12 +1,17 @@
 cli.Activate()
+getLastRow := cli.Cells(cli.Rows.Count, 1).End(-4162).Row  ; xlUp
 
-; --- Get last used row ---
-getLastRow := cli.Cells(cli.Rows.Count, 1).End(-4162).Row
+for row := 2, row <= getLastRow, row++ {
+    colGValue := cli.Cells(row, 7).Value   ; Column G
+    AddToLog("Row " row " → G: " colGValue)
+}
 
-; --- Loop from row 2 to last row ---
-for row in 2..getLastRow {
-    ; Column G = column 7
-    colGValue := cli.Cells(row, 7).Value
 
+cli.Activate()
+getLastRow := cli.Cells(cli.Rows.Count, 1).End(-4162).Row  ; xlUp
+
+; correct syntax → note the parentheses
+for row in (2 .. getLastRow) {
+    colGValue := cli.Cells(row, 7).Value  ; column G
     AddToLog("Row " row " → G: " colGValue)
 }
