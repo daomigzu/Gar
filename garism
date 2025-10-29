@@ -2,11 +2,23 @@ CheckEmptyBoxes() {
     CoordMode("Pixel", "Screen")
     CoordMode("Mouse", "Screen")
 
-    startX := 600, startY := 280
-    hGap := 100, vGap := 20
-    rows := 3, cols := 4
-    blankColor := 0xFFFFFF
-    tol := 0x080808
+    ; --- anchors you gave ---
+    startX := 600
+    startY := 280
+    hGap   := 100     ; Box4.x - Box1.x
+    vGap   := 20      ; Box2.y - Box1.y
+    rows   := 3
+    cols   := 4
+
+    ; --- scan window inside each textbox (tweak if needed) ---
+    scanOffsetX := 10   ; start a bit inside the left edge
+    scanW       := 80   ; width of area to scan for text
+    scanH       := 12   ; height of area around baseline
+    scanOffsetY := -6   ; center strip vertically around Y
+
+    ; --- consider "dark" text near black with some tolerance ---
+    darkColor := 0x000000
+    variation := 80     ; 0..255 color tolerance (increase if Citrix anti-alias)
 
     emptyCount := 0
     blankBoxes := []
@@ -16,14 +28,23 @@ CheckEmptyBoxes() {
         Loop cols {
             c := A_Index
             boxNum := (r - 1) * cols + c
+
             x := startX + (c - 1) * hGap
             y := startY + (r - 1) * vGap
 
-            MouseMove(x, y, 5)
-            Sleep(120)
+            ; region to search for any dark pixel (text)
+            left   := x + scanOffsetX
+            top    := y + scanOffsetY
+            right  := left + scanW
+            bottom := top  + scanH
 
-            color := PixelGetColor(x, y, "RGB")
-            if (Abs(color - blankColor) <= tol) {
+            ; (optional) show where we're scanning
+            MouseMove(x, y, 0)
+            Sleep(80)
+
+            found := PixelSearch(&px, &py, left, top, right, bottom, darkColor, variation, "RGB")
+            ; PixelSearch returns true if it finds a pixel near darkColor
+            if !found {
                 emptyCount++
                 blankBoxes.Push(boxNum)
             }
@@ -36,7 +57,7 @@ CheckEmptyBoxes() {
     MsgBox(msg)
 }
 
-; ========= helpers (place once, outside any function) =========
+; Simple helper once in your script:
 JoinArr(arr, delim := ", ") {
     out := ""
     for i, v in arr
