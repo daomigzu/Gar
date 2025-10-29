@@ -1,5 +1,38 @@
-ClearClipboard() {
-    A_Clipboard := ""
-    ClipWait(0)
-    AddToLog("Clipboard cleared.")
+CheckEmptyBoxes() {
+    startX := 600
+    startY := 280
+    hGap   := 100   ; horizontal spacing (box4.x - box1.x)
+    vGap   := 20    ; vertical spacing (box2.y - box1.y)
+    rows   := 3
+    cols   := 4
+    blankColor := 0xFFFFFF  ; adjust if needed (white = empty)
+
+    emptyCount := 0
+    blankBoxes := []
+
+    Loop rows {
+        r := A_Index
+        Loop cols {
+            c := A_Index
+            boxNum := (r - 1) * cols + c
+            x := startX + (c - 1) * hGap
+            y := startY + (r - 1) * vGap
+
+            ; Move mouse to visually indicate which box is checked
+            MouseMove(x, y, 5)
+            Sleep(150)
+
+            PixelGetColor(color, x, y, "RGB")
+            if (color = blankColor) {
+                emptyCount++
+                blankBoxes.Push(boxNum)
+            }
+        }
+    }
+
+    Msg := "Blank boxes detected: " emptyCount
+    if (blankBoxes.Length)
+        Msg .= "`nBlank box numbers: " Join(",", blankBoxes*)
+
+    MsgBox(Msg)
 }
